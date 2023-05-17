@@ -1,3 +1,5 @@
+# Script qui liste les url d'accès à chaque livre sur une page
+ 
 import requests
 
 from bs4 import BeautifulSoup
@@ -22,4 +24,5 @@ for element in selection_article:
     lien = element.find("a")
     link = lien["href"]
     liste_liens_par_page.append(URL + link)
-print(liste_liens_par_page)
+
+# print(liste_liens_par_page)
