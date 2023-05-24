@@ -1,21 +1,25 @@
-import requests 
+import requests
 import re
 
 from bs4 import BeautifulSoup
 
-def extraction_unitaire_donnees_livre(url):
-    
-    """
-        Récupère toutes les données brutes concernant un livre dont l'url est 
-        passée en paramètre
-        
-    """
-    
+
+
+"""def extraction_donnees_du_livre(url):
+
+
+
+
+    # Récupère toutes les données brutes concernant le livre dont l'url est 
+    # passée en paramètre
+
+
     import requests
     import re
 
     from bs4 import BeautifulSoup
 
+    # url = "https://books.toscrape.com/catalogue/the-death-of-humanity-and-the-case-for-life_932/index.html"
 
     TIMEOUT_REQUEST = 15
 
@@ -25,192 +29,212 @@ def extraction_unitaire_donnees_livre(url):
 
     soup = BeautifulSoup(page_html.content, 'html.parser')
 
-    selection_html = soup.select(".product_main h1")
-    for element in selection_html:
-        if element.get_text() != '':
-            title = element.get_text()
-    
-    # Extraction.T.L : Extraction UPC, Price (incl. tax), Price (excl. tax), availability, product_description, Number of reviews, image_url, category
-
-    selection_html = soup.select("table.table-striped > tr")
-   # print(type(selection_html))
-    liste = {}
-    for element in selection_html:
-        element_attribut = element.find("th").get_text()
-        element_valeur = element.find('td').get_text()
-        liste[element_attribut] = element_valeur
-        #print(f"liste: {liste}")
-
-    # Extraction de la description du livre
-    selection_html = soup.select('article.product_page > p')
-    valeur = []
-    if selection_html is not None:
+    selection_html = soup.select('#content_inner > article > ul > li:nth-child(1) > article > h3')
+    # print(f"Selection_html : {selection_html}")
+    title = 'nc'
+    url_livre = 'nc'
+    if selection_html:
+        detail_livre = {}
         for element in selection_html:
-            valeur.append(element.text)
-            product_description = valeur[0]
-    else :
+            extrait = element.find('a')
+            title = extrait.get('title')
+            url_livre = extrait.get('href')
+
+    selection_html = soup.select("table tr")
+
+    if selection_html:
+        liste = {}
+        for element in selection_html:
+            attribut = element.find('th').get_text()
+            valeur = element.find('td').get_text()
+            liste[attribut] = valeur
+    # print(f"Liste = {liste}")
+
+# Extraction de la description du livre
+    selection_html = soup.select('#content_inner > article > p')
+    valeur = []
+    if selection_html:
+        for element in selection_html:
+            description = element.get_text()
+            product_description = repr(description)
+            # product_description = description
+    else:
         product_description = ['Pas de donnees']
 
-
-    # Extraction de la category
-    selection_html = soup.select("a[href*=\/books\/]")
-    category_testee = selection_html[0].get_text()
-    if category_testee is not None :
-        category = category_testee
+# Extraction de la category
+    selection_html = soup.select("#default > div > div > ul > li:nth-child(3) > a")
+    if selection_html:
+        for element in selection_html:
+            category = element.get_text()
     else:
         category = 'Pas de donnee'
+    # print(f"categorie : {category}")
 
-    
     # Extraction de l'image du livre
-    selection_html = soup.find_all('img')
-    for image in selection_html:
-        url_src = image['src']
-    image_url = url_src
+    selection_html = soup.select('#content_inner > article > ul > li:nth-child(1) > article > div.image_container > a > img')
+    # print(f"Selection : {selection_html}")
+    if selection_html:
+        for element in selection_html:
+            try:
+                (element['src'])
+                url_image = element['src']
+            except:
+                url_image = 'Pas de donnees'
+    else:
+        url_image = 'Pas de donnees'
+    # print(f"URL image : {url_image}")
 
     # Alimentation des données de sortie
     donnees["title"] = title
     donnees["category"] = category
     donnees.update(liste)
-    donnees["image_url"] = image_url
+    donnees["url_image"] = url_image
     donnees["product_description"] = product_description
-    
+
     return donnees
 
-
+"""
+"""
 def extraction_liste_url_category(url):
  
     """
-    Cette fonction retourne une liste ('liste_url_categories')
-	de la liste des urls de catégories
-    """
+        # Cette fonction retourne une liste ('liste_url_categories')
+        # de la liste des urls de catégories
+"""
 
-    import requests 
-    import re
+import requests 
+import re
 
-    from bs4 import BeautifulSoup
+from bs4 import BeautifulSoup
 
-    TIMEOUT_REQUEST = 15
+TIMEOUT_REQUEST = 15
 
-    # url = 'https://books.toscrape.com/'
+url = 'https://books.toscrape.com'
 
-    page_html = requests.get(url, timeout=TIMEOUT_REQUEST)
+page_html = requests.get(url, timeout=TIMEOUT_REQUEST)
 
-    soup = BeautifulSoup(page_html.content, 'html.parser')
+soup = BeautifulSoup(page_html.content, 'html.parser')
 
-    #selection_html = soup.select("a[href*=\\/books\\/]")
-    selection_html = soup.select('#default > div > div > div > aside > div.side_categories > ul > li > ul')
-
-    liste_url_categories = []
-    
+selection_html = soup.select('#default > div > div > div > aside > div.side_categories > ul > li > ul')
+if selection_html:
+    liste_url_category = []
     for element in selection_html:
         element_attribut = element.find_all('a')
+        print(f"Element_Attribut : {element_attribut}")
         for element in element_attribut:
             el = url + '/' + element.get('href')
-            liste_url_categories.append(el)
-            #el = element_valeur.get('href')
+            print(f"url_categorie = {el}")
+            liste_url_category.append(el)
+else:
+    liste_url_category = []
+            # el = element_valeur.get('href')
         # print(f"Liste_url_categories = {liste_url_categories}")
-        #url_complete = element.get('href')
-        #category = re.sub(r'\s', "", element.get_text())
-        #liste_url_par_page_category.update({url_complete: category})
-        #print(f"Liste des url_categories : {liste_url_par_page_category}")
+        # url_complete = element.get('href')
+        # category = re.sub(r'\s', "", element.get_text())
+        # liste_url_par_page_category.update({url_complete: category})
+# print(f"Liste des url_categories : {liste_url_category}")
 
-    return liste_url_categories
+# return liste_url_categories
+"""
 
+"""
+def : url_book_par_category(url_category):
 
-def url_book_par_categorie(url_category):
+import requests 
+import re
 
-    import requests 
-    import re
+from bs4 import BeautifulSoup
 
-    from bs4 import BeautifulSoup
-
-    TIMEOUT_REQUEST = 15
-    url = url_category
+TIMEOUT_REQUEST = 15
+# url = 'https://books.toscrape.com/catalogue/category/books/sequential-art_5/index.html'
     
-    liste_livre_category = []
-    word = ''
+liste_livre_category = []
 
-    while url :
-        url_mem = url
-
-        page_html = requests.get(url, timeout=TIMEOUT_REQUEST)
-        soup = BeautifulSoup(page_html.content, 'html.parser')
-        selection_html_courante = soup.select('#default > div > div > div > div > section > div:nth-child(2) > ol > li > article.product_pod > h3')
-        selection_html_suivante = soup.select('#default > div > div > div > div > section > div:nth-child(2) > div > ul > li.next')
-        # print(f"Selection_html_suivante : {selection_html_suivante}")
+while url :
+    page_html = requests.get(url, timeout=TIMEOUT_REQUEST)
+    soup = BeautifulSoup(page_html.content, 'html.parser')
+    selection_html_courante = soup.select('#default > div > div > div > div > section > div:nth-child(2) > ol > li > article.product_pod > h3')
+   # print(f"Selection_html_courante : {selection_html_courante}")
+    if selection_html_courante:
         for element in selection_html_courante:
             url_book = element.find('a').get('href')
             url_book = url_book.replace('../', '')
-            url_absolue = "https://books.toscrape.com/catalogue/" + url_book
-            # print(f"url_book : {url_absolue}")
-            liste_livre_category.append(url_absolue)
-            url = ''
-            if len(selection_html_suivante) > 0 :
-                for item in selection_html_suivante:
-                    element = item.find('a')
-                    word = element.get('href')
-                    # print(f"liste des livres : {selection_html}")
-                    url = url_mem.replace(url_mem.split('/')[-1], word)
-                    #url = 'https://books.toscrape.com/' + url_mem.replace('../', '')
-                    # print(f"url secondaire : {url}")
-      
-    return liste_livre_category
+            url_book = "https://books.toscrape.com/catalogue/" + url_book
+            liste_livre_category.append(url_book)
+        # print(f"Liste_livres_par_categorie : {liste_livre_category}")
+
+    # Vérification de page suivante et création du lien vers cette page
+
+    selection_html_suivante = soup.select('#default > div > div > div > div > section > div:nth-child(2) > div > ul > li.next')
+    if selection_html_suivante:
+        # print(f"Selection_url_suivante : {selection_html_suivante}")
+        for item in selection_html_suivante:
+            element = item.find('a').get('href')
+        # print(f"liste des livres : {selection_html}")
+            url = url.replace(url.split('/')[-1], element)
+        # print(f"url suivante : {url}")
+    else:
+        url = ''
+# print(f"Liste_url_par categorie : {liste_livre_category}")      
+# return liste_livre_category
 
 
-def transformation_donnees_brutes(donnees_brutes):
+"""
+# def transformation_donnees_brutes(donnees_brutes):
     
     # Transformation des données récupérées 
-    from datetime import date, time, datetime
-    import re
+from datetime import date, time, datetime
+import re
 
-    #print(f"donnees_extraites : \n \n {donnees_brutes}")
+donnees_brutes = {'title': "Sophie's World", 'category': 'Philosophy', 'UPC': 'bd261725b99f5983', 'Product Type': 'Books', 'Price (excl. tax)': '£58.11', 'Price (incl. tax)': '£58.11', 'Tax': '£0.00', 'Availability': 'In stock (16 available)', 'Number of reviews': '0', 'url_image': '../../media/cache/65/71/6571919836ec51ed54f0050c31d8a0cd.jpg', 'product_description': '"Do you believe human life is inherently valuable? Unfortunately, in the secularized age of state-sanctioned euthanasia and abortion-on-demand, many are losing faith in the simple value of human life. To the disillusioned, human beings are a cosmic accident whose intrinsic value is worth no more than other animals.The Death of Humanity explores our culture\'s declining respe Do you believe human life is inherently valuable? Unfortunately, in the secularized age of state-sanctioned euthanasia and abortion-on-demand, many are losing faith in the simple value of human life. To the disillusioned, human beings are a cosmic accident whose intrinsic value is worth no more than other animals.The Death of Humanity explores our culture\'s declining respect for the sanctity of human life, drawing on philosophy and history to reveal the dark road ahead for society if we lose our faith in human life. ...more"'}
+
+    # print(f"donnees_extraites : \n \n {donnees_brutes}")
 
     # E.Transformation.L : traitement de mise en forme des données extraites : suppression des champs Tax, Availability et Product type. Mise en format numérique des prix, isolation de la valeur du nombre de reviews, repise en ordre des données en correspondance aux attendus.
 
-    price_inc = donnees_brutes.get('Price (incl. tax)')
-    #print(f"prix incl : {price_inc}")
-    price_includ = str(price_inc).replace("£", "")
-    price_include_tax = price_includ
-    price_exc = donnees_brutes.get('Price (excl. tax)')
-    price_exclud = str(price_exc).replace("£", '')
-    price_exclude_tax = price_exclud
-    #print(f"Taxe Exclud : {price_exclude_tax}")
-    availability = donnees_brutes.get('Availability')
-    #print(f"Availability : {availability}")
-    available = (re.sub(r'\D', "", availability))
-    nbre_review = donnees_brutes.get('Number of reviews')
-    number_of_reviews = nbre_review
-    img_url = donnees_brutes.get('image_url')
-    valeur = str(img_url).replace("../", "")
-    # image_url = URL_BASE + '/' + str(valeur)
-    image_url = str(valeur)
+price_inc = donnees_brutes.get('Price (incl. tax)')
+#print(f"prix incl : {price_inc}")
+price_includ = str(price_inc).replace("£", "")
+price_include_tax = price_includ
+price_exc = donnees_brutes.get('Price (excl. tax)')
+price_exclud = str(price_exc).replace("£", '')
+price_exclude_tax = price_exclud
+#print(f"Taxe Exclud : {price_exclude_tax}")
+availability = donnees_brutes.get('Availability')
+#print(f"Availability : {availability}")
+available = (re.sub(r'\D', "", availability))
+nbre_review = donnees_brutes.get('Number of reviews')
+number_of_reviews = nbre_review
+img_url = donnees_brutes.get('image_url')
+valeur = str(img_url).replace("../", "")
+# image_url = URL_BASE + '/' + str(valeur)
+image_url = str(valeur)
 
-    donnees_purgees = {}
-    print(f"Boucle donnees brutes / purges: {donnees_purgees} / {donnees_purgees}")
-    # donnees_purgees['product_page_url'] = 'A ajouter'
-    donnees_purgees['universal_product_code (upc)'] = donnees_brutes.get('UPC')
-    donnees_purgees['title'] = donnees_brutes.get('title')
-    donnees_purgees['price_including_tax'] = price_include_tax
-    donnees_purgees['price_excluding_tax'] = price_exclude_tax
-    donnees_purgees['number_available'] = available
-    donnees_purgees['product_description'] = donnees_brutes.get('product_description')
-    donnees_purgees['category'] = donnees_brutes.get('category')
-    donnees_purgees['review_rating'] = number_of_reviews 
-    donnees_purgees['image_url'] = image_url
+donnees_purgees = {}
+print(f"Boucle donnees brutes / purges: {donnees_purgees} / {donnees_purgees}")
+# donnees_purgees['product_page_url'] = 'A ajouter'
+donnees_purgees['universal_product_code (upc)'] = donnees_brutes.get('UPC')
+donnees_purgees['title'] = donnees_brutes.get('title')
+donnees_purgees['price_including_tax'] = price_include_tax
+donnees_purgees['price_excluding_tax'] = price_exclude_tax
+donnees_purgees['number_available'] = available
+donnees_purgees['product_description'] = donnees_brutes.get('product_description')
+donnees_purgees['category'] = donnees_brutes.get('category')
+donnees_purgees['review_rating'] = number_of_reviews 
+donnees_purgees['image_url'] = image_url
+"""
+return donnees_purgees
 
-    return donnees_purgees
 
-
-
+"""
 
 # ************** Fin de la définition des fonctions ****************
 
 
-""" 
-    Programme principal
+
+""" Programme principal
 
     Récupération de la liste des catégories
-"""
 
 
 liste_category = []
@@ -259,12 +283,12 @@ for element in liste_category:
 # Fin des actions 
 
 fichier.close()
+"""
 
-#print(f"Donnees_vers_csv : {entetes_vers_csv}")
+# print(f"Donnees_vers_csv : {entetes_vers_csv}")
 
 # print(f"Donnees_vers_csv : {donnees_vers_csv}")
 
 # Creation du fichier de données cible
 
 # Ecriture des données dans le fichier : Entête + informations
-
