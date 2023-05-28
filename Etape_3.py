@@ -33,10 +33,8 @@ def extraction_liste_url_category(url):
         liste_url_category = []
         for element in selection_html:
             element_attribut = element.find_all('a')
-            # print(f"Element_Attribut : {element_attribut}")
             for element in element_attribut:
                 el = url + '/' + element.get('href')
-                # print(f"url_categorie = {el}")
                 liste_url_category.append(el)
     else:
         liste_url_category = []
@@ -70,48 +68,35 @@ def url_book_par_category(url_category):
         soup = BeautifulSoup(page_html.content, 'html.parser')
         selection_html_courante = soup.select('#default > div > div > div > div > section > div:nth-child(2) > ol > li > article.product_pod > h3')
         # selection_html_courante = soup.find_all('default > div > div > div > div > section > div:nth-child(2) > ol > li:nth-child(2) > article')
-        # print(f"selection_html_courante : {selection_html_courante}")
         selection_html_suivante = soup.select('#default > div > div > div > div > section > div:nth-child(2) > div > ul > li.next')
-        # print(f"selection_html_suivante : {selection_html_suivante}")
         if selection_html_suivante:
             url_tmp = url_category
-            # print(f"Selection_url_suivante : {selection_html_suivante}")
             for item in selection_html_suivante:
                 element = item.find('a').get('href')
-            # print(f"liste des livres : {selection_html}")
             url_category = url_tmp.replace(url_tmp.split('/')[-1], element)
-            # print(f"url suivante : {url_category}")
         else:
             url_category = ''
 
-    # print(f"Selection_html_courante : {selection_html_courante}")
         if selection_html_courante:
             for element in selection_html_courante:
                 url_book = element.find('a').get('href')
                 url_book = url_book.replace('../', '')
                 url_book = "https://books.toscrape.com/catalogue/" + url_book
                 liste_livre_category.append(url_book)
-            # print(f"Liste_livres_par_categorie : {liste_livre_category}")
-            # print("---------------------------------")
 
         # Vérification de page suivante et création du lien vers cette page
 
         selection_html_suivante = soup.select('#default > div > div > div > div > section > div:nth-child(2) > div > ul > li.next')
         if selection_html_suivante:
             url_tmp = url_category
-            # print(f"url_tmp : {url_tmp}")
-            # print(f"Selection_url_suivante : {selection_html_suivante}")
             for item in selection_html_suivante:
                 element = item.find('a').get('href')
-            # print(f"liste des livres : {selection_html}")
                 url = url_category.replace(url_category.split('/')[-1], element)
             url_category = url
-            # print(f"url suivante : {url_tmp}")
         else:
             url_category = ''
 
     return liste_livre_category
-    # print(f"liste_livres de la catégorie : {liste_livre_category}")
 
 
 def extraction_donnees_du_livre(url):
@@ -162,16 +147,12 @@ def extraction_donnees_du_livre(url):
     # Extraction de la description du livre
     valeur = []
     try:
-        # selection_html = soup.select('head > meta:nth-child(4)')
         selection_html = soup.select('#content_inner > article > p')
         for element in selection_html:
             description = element.get_text('p')
-            # description =re.sub('\n', '', element.get('content'))
-            # description =re.sub('\n', '', element.get('content'))
             product_description = description
     except:
         product_description = ['Pas de donnees']
-        # print(f"selection_html : {selection_html}")
 
     # Extraction de la category
     selection_html = soup.select("#default > div > div > ul > li:nth-child(3) > a")
@@ -180,12 +161,9 @@ def extraction_donnees_du_livre(url):
             category = element.get_text()
     else:
         category = 'Pas de donnee'
-    # print(f"categorie : {category}")
 
     # Extraction de l'image du livre
-    #product_gallery > div > div > div
     selection_html = soup.select('#product_gallery > div > div > div > img')
-    # print(f"Selection : {selection_html}")
     if selection_html:
         for element in selection_html:
             try:
@@ -205,7 +183,6 @@ def extraction_donnees_du_livre(url):
     donnees_brutes["product_description"] = product_description
     donnees_brutes['product_page_url'] = url_livre
 
-    print(f" Donnees brutes : {donnees_brutes}")
     return donnees_brutes
 
 
@@ -221,21 +198,23 @@ def transformation_donnees_brutes(donnees_in):
 
     donnees_purgees = {}
     
-        # print(f"donnees_extraites : \n \n {donnees_brutes}")
 
         # (E).Transformation.(L) : traitement de mise en forme des données extraites : suppression des champs Tax, Availability et Product type. Mise en format numérique des prix, isolation de la valeur du nombre de reviews, repise en ordre des données en correspondance aux attendus.
 
+    # Pour les 2 valeurs de type tarif, suppression de la "currency" et remplacement du point par la virgule
     if 'Price (incl. tax)' in donnees_in:
         price_inc = donnees_in.get('Price (incl. tax)')
-        price_includ = str(price_inc).replace("£", "")
-        price_include_tax = float(price_includ)
+        price_includ = str(price_inc).replace(".", ",")
+        price_includ = str(price_includ).replace("£", "")
+        price_include_tax = (price_includ)
     else:
         price_include_tax = None
 
     if 'Price (excl. tax)' in donnees_in:
         price_exc = donnees_in.get('Price (excl. tax)')
-        price_exclud = str(price_exc).replace("£", '')
-        price_exclude_tax = float(price_exclud)
+        price_exclud = str(price_exc).replace(".", ",")
+        price_exclud = str(price_exclud).replace("£", '')
+        price_exclude_tax = (price_exclud)
     else:
         price_exclude_tax = None
         
@@ -270,9 +249,7 @@ def transformation_donnees_brutes(donnees_in):
 
     if 'product_description' in donnees_in:
         description = donnees_in.get('product_description')
-        # description = re.sub(",", "\",\"", description)
         description = re.sub("\"", "\"\"", description)
-        # description = str(donnees_in.get('product_description'))
         product_description = str(description)
     else :
         product_description = 'nc'
@@ -291,8 +268,8 @@ def transformation_donnees_brutes(donnees_in):
 
     donnees_purgees['universal_product_code (upc)'] = upc
     donnees_purgees['title'] = title
-    donnees_purgees['price_including_tax'] = price_include_tax
-    donnees_purgees['price_excluding_tax'] = price_exclude_tax
+    donnees_purgees['price_including_tax (£)'] = price_include_tax
+    donnees_purgees['price_excluding_tax (£)'] = price_exclude_tax
     donnees_purgees['number_available'] = available
     donnees_purgees['category'] = category
     donnees_purgees['review_rating'] = number_of_reviews 
@@ -334,61 +311,36 @@ depot_directory = racine_arborescence(nom_projet)
 
 # Deplacement a la racine du projet
 os.chdir(nom_projet)
-# print(f"Répertoire racine : {os.getcwd()}")
-# Creaton du fichier cible
-# with open("donnees.csv", "w") as fichier_donnees:
-#    pass
 
 liste_category = extraction_liste_url_category('https://books.toscrape.com')
-# print(f"liste des catégories : {liste_category}")
-# print(f"Liste_url_categories : {liste_category}")
 for category in liste_category:
     entetes = ''
-    # print(f"Element passé à url_book_par_category : {element}")
     url_livres_par_category = url_book_par_category(category)
-    # print(f"Appel url_book_par_category avec : {url_livres_par_category}")
 
     for url1 in url_livres_par_category:
-        # print(f"url unitaire : {url1}")
-        # print(f"------------------------------------------")
         # Extraction des données par livre
         donnees_brutes = extraction_donnees_du_livre(url1)
-        # print(f"Appel estraction_donnees_brutes avec : {donnees_brutes}")
-        # print(f"------------------------------------------")
         # Transformation des données brutes par livre 
         donnees_propres = transformation_donnees_brutes(donnees_brutes)
-        # print(f"Donnees_purgees : {donnees_propres}")
-        # print(f"------------------------------------------")
-        # print(f"Appel transformation_donnees_brutes avec : {donnees_propres}")
         
         # Transformation pour la création de la ligne d'entêtes dans le csv.
         if entetes == '':
             
             # generation du repertoire de depot et du nom du fichier de donnes depuis la categorie.
             nom_dossier = donnees_propres['category']
-            # rep_work = os.getcwd()
-            # print(f"Rep travail  : {rep_work}")
             if not os.path.exists(nom_dossier):
                 os.makedirs(nom_dossier, exist_ok=True)
             os.chdir(nom_dossier)
             rep_work = os.getcwd()
-            # print(f"New Rep travail  : {rep_work}")
             # Création du fichier .csv recevant les données associées au livre, dans le répertoire spécitique
             nom_fichier_csv = donnees_propres['category']
             timestamp = strftime("%Y%m%d_%H%M%S")
             nom_fichier_csv = timestamp + '-' + re.sub(' ', '_', nom_fichier_csv) + '.csv'
-            # print(f"nom fichier : {nom_fichier}")
-            # print(f"------------------------------------------")
             # Ecriture des données collectées pour le livre dans un fichier .csv dûement placé.
-            # print(f"nom fichier : {nom_fichier_csv}")
-            # print(f"------------------------------------------")
-            # with open(nom_fichier_csv, "w") as fichier_donnees:
-            #    ecriture = fichier_donnees.write(entetes_vers_csv)
             
             # generation de le ligne d'entête
             for key in donnees_propres:
                 entetes = entetes + '"' + str(key) + '"' + ','
-                # entetes = entetes + "\"" + str(key) + "\","
                 # Chargement des entêtes vers le fichier .csv
                 entetes_vers_csv = entetes[:-1] + '\n'  
             with open(nom_fichier_csv, "w", encoding="utf-8") as fichier_donnees:
