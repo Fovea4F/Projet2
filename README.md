@@ -1,11 +1,9 @@
-# Projet2
+# Extraction données depuis BooKToScrape
 Cours apprentisage Python OpenClassrooms
 
+Le code python de ce projet, permet de composer un inventaire des livres contenus dans la bibliothèque BookToScrape.com.
+Le résultat de ce programme est l'enregistrement local d'une arborescence de dossiers/fichiers, suivant les thèmes référencés dans le site.
+Chaque dossier par thème inclut :
+  -  un fichier .csv comportant les principales caractéristiques de chaque livre.
+  -  Un dossier images par thème stockant la couverture de chaque livre.
 
-The objective of this project is mainly to meet the specifications of the project.
-And also mainly.....it is created to use tools around python development.
-As a newbee, I would ask every reader to be tolerant as I am trying to learn new skills.
-Learn with passion, fall into the abyss, understand, and continue learning.
-Failure helps to move forward.
-
-Says Confusius: "If you want to help me, don't give me fish, teach me how to fish!"
