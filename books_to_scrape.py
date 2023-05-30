@@ -8,18 +8,15 @@ import re
 import requests
 import os
 
-from time import strftime, gmtime
-from bs4 import BeautifulSoup
+from time import strftime
 
 
 def extraction_liste_url_category(url):
-        
+
     """     Cette fonction retourne une liste ('liste_url_category')
             de la liste des urls des catégories
     """
-
-    import re
-    import requests 
+    import requests
     from bs4 import BeautifulSoup
 
     TIMEOUT_REQUEST = 15
@@ -38,32 +35,30 @@ def extraction_liste_url_category(url):
                 liste_url_category.append(el)
     else:
         liste_url_category = []
-    
+
     return liste_url_category
 
 
 def url_book_par_category(url_category):
-
 
     """ Cette fonction définit une liste d'Urls
         pointant sur des description de livres de la même catégorie, dont on souhaite extraire les données.
 
         En entrée : url_category : variable indiquant l'url de la catégorie
     """
-    import requests 
-    import re
+    import requests
     from bs4 import BeautifulSoup
 
     TIMEOUT_REQUEST = 15
     liste_livre_category = []
-    
+
     page_html = ''
     soup = ''
     selection_html_courante = ''
 
     # url_category = 'https://books.toscrape.com/catalogue/category/books/fiction_10/index.html'
 
-    while url_category :
+    while url_category:
         page_html = requests.get(url_category, timeout=TIMEOUT_REQUEST)
         soup = BeautifulSoup(page_html.content, 'html.parser')
         selection_html_courante = soup.select('#default > div > div > div > div > section > div:nth-child(2) > ol > li > article.product_pod > h3')
@@ -101,13 +96,12 @@ def url_book_par_category(url_category):
 
 def extraction_donnees_du_livre(url):
 
-
     """
         Partie Extraction de (ETL) :
-        Récupère toutes les données brutes concernant le livre dont l'url est 
+        Récupère toutes les données brutes concernant le livre dont l'url est
         passée en paramètre.
         Entrée : (url) du livre à explorer
-        Sortie : dictionnaire de données au format brut : 
+        Sortie : dictionnaire de données au format brut.
     """
 
     import re
@@ -115,7 +109,7 @@ def extraction_donnees_du_livre(url):
     from bs4 import BeautifulSoup
 
     TIMEOUT_REQUEST = 15
-    
+
     donnees_brutes = {}
     page_html = ''
     soup = ''
@@ -123,9 +117,8 @@ def extraction_donnees_du_livre(url):
     title = 'nc'
     url_livre = 'nc'
 
-
     page_html = requests.get(url, timeout=TIMEOUT_REQUEST)
-    
+
     soup = BeautifulSoup(page_html.content, 'html.parser')
     selection_html = soup.select('#content_inner > article > div.row > div.col-sm-6.product_main')
     if selection_html:
@@ -133,7 +126,7 @@ def extraction_donnees_du_livre(url):
             title = element.find('h1').get_text()
 
     selection_html = soup.select('#content_inner > article > ul > li:nth-child(1) > article > h3')
-    
+
     url_livre = url
 
     selection_html = soup.select("table tr")
@@ -143,16 +136,26 @@ def extraction_donnees_du_livre(url):
             attribut = element.find('th').get_text()
             valeur = element.find('td').get_text()
             liste[attribut] = valeur
-    
-    # Extraction de la description du livre
+
+    """# Extraction de la description du livre
     valeur = []
     try:
         selection_html = soup.select('#content_inner > article > p')
         for element in selection_html:
             description = element.get_text('p')
             product_description = description
-    except:
+    except UnboundLocalError:
         product_description = ['Pas de donnees']
+    """
+    # Extraction de la description du livre
+
+    selection_html = soup.select('#content_inner > article > p')
+    if selection_html == []:
+        product_description = 'nc'
+    else:
+        for element in selection_html:
+            description = element.get_text('p')
+            product_description = description
 
     # Extraction de la category
     selection_html = soup.select("#default > div > div > ul > li:nth-child(3) > a")
@@ -168,7 +171,7 @@ def extraction_donnees_du_livre(url):
         for element in selection_html:
             try:
                 url_tmp = element['src']
-                url_tmp =  url_tmp.replace('../', '')
+                url_tmp = url_tmp.replace('../', '')
                 url_image = 'https://books.toscrape.com/' + url_tmp
             except:
                 url_image = 'Pas de donnees'
@@ -187,7 +190,7 @@ def extraction_donnees_du_livre(url):
 
 
 def transformation_donnees_brutes(donnees_in):
-    
+
     """
         Partie Transformation de (ETL) :
         Nettoyage des données récupéres afin de rendre leur format utilisable
@@ -197,11 +200,10 @@ def transformation_donnees_brutes(donnees_in):
     import re
 
     donnees_purgees = {}
-    
 
-        # (E).Transformation.(L) : traitement de mise en forme des données extraites : suppression des champs Tax, Availability et Product type. Mise en format numérique des prix, isolation de la valeur du nombre de reviews, repise en ordre des données en correspondance aux attendus.
-
+    # (E).Transformation.(L) : traitement de mise en forme des données extraites : suppression des champs Tax, Availability et Product type. Mise en format numérique des prix, isolation de la valeur du nombre de reviews, repise en ordre des données en correspondance aux attendus.
     # Pour les 2 valeurs de type tarif, suppression de la "currency" et remplacement du point par la virgule
+
     if 'Price (incl. tax)' in donnees_in:
         price_inc = donnees_in.get('Price (incl. tax)')
         price_includ = str(price_inc).replace(".", ",")
@@ -217,7 +219,7 @@ def transformation_donnees_brutes(donnees_in):
         price_exclude_tax = (price_exclud)
     else:
         price_exclude_tax = None
-        
+
     if 'Availability' in donnees_in:
         availability = donnees_in.get('Availability')
         available = str(re.sub(r'\D', "", availability))
@@ -251,7 +253,7 @@ def transformation_donnees_brutes(donnees_in):
         description = donnees_in.get('product_description')
         description = re.sub("\"", "\"\"", description)
         product_description = str(description)
-    else :
+    else:
         product_description = 'nc'
 
     if 'category' in donnees_in:
@@ -272,28 +274,26 @@ def transformation_donnees_brutes(donnees_in):
     donnees_purgees['price_excluding_tax (£)'] = price_exclude_tax
     donnees_purgees['number_available'] = available
     donnees_purgees['category'] = category
-    donnees_purgees['review_rating'] = number_of_reviews 
+    donnees_purgees['review_rating'] = number_of_reviews
     donnees_purgees['image_url'] = image_url
     donnees_purgees['product_page_url'] = product_page_url
     donnees_purgees['product_description'] = product_description
-
 
     return donnees_purgees
 
 
 def racine_arborescence(nom_projet):
-    
-    """ Création du donnier racine des données aspirées
+
+    """ Creation du dossier racine des données aspirees
     """
 
     import os
-    
 
     os.makedirs(nom_projet, exist_ok=True)
 
     return None
 
-# ************** Fin de la définition des fonctions ****************
+# ************** Fin de la definition des fonctions ****************
 
 
 """
@@ -301,6 +301,7 @@ def racine_arborescence(nom_projet):
 
     Récupération de la liste des catégories
 """
+
 liste_category = []
 entetes = ""
 nom_projet = 'Books_to_scrape'
@@ -320,12 +321,12 @@ for category in liste_category:
     for url1 in url_livres_par_category:
         # Extraction des données par livre
         donnees_brutes = extraction_donnees_du_livre(url1)
-        # Transformation des données brutes par livre 
+        # Transformation des données brutes par livre
         donnees_propres = transformation_donnees_brutes(donnees_brutes)
-        
+
         # Transformation pour la création de la ligne d'entêtes dans le csv.
         if entetes == '':
-            
+
             # generation du repertoire de depot et du nom du fichier de donnes depuis la categorie.
             nom_dossier = donnees_propres['category']
             if not os.path.exists(nom_dossier):
@@ -337,29 +338,29 @@ for category in liste_category:
             timestamp = strftime("%Y%m%d_%H%M%S")
             nom_fichier_csv = timestamp + '-' + re.sub(' ', '_', nom_fichier_csv) + '.csv'
             # Ecriture des données collectées pour le livre dans un fichier .csv dûement placé.
-            
+
             # generation de le ligne d'entête
             for key in donnees_propres:
                 entetes = entetes + '"' + str(key) + '"' + ','
                 # Chargement des entêtes vers le fichier .csv
-                entetes_vers_csv = entetes[:-1] + '\n'  
+                entetes_vers_csv = entetes[:-1] + '\n'
             with open(nom_fichier_csv, "w", encoding="utf-8") as fichier_donnees:
                 ecriture = fichier_donnees.write(entetes_vers_csv)
-            
+
         # Transformation de chaque ligne de donnée afin de formater en .csv et "échaper les caractères identiques au séparateur virgule"
         donnees = ''
         for value in donnees_propres:
             donnees = donnees + '"' + str(donnees_propres[value]) + '"' + ','
         donnees_vers_csv = donnees[:-1] + '\n'
-        
+
         # Load (Chgargement) des données par ligne vers le fichier .csv
         with open(nom_fichier_csv, "a", encoding="utf-8") as fichier_donnees:
             ecriture = fichier_donnees.write(donnees_vers_csv)
-        
+
         # Création du fichier image recevant l'image associée au livre et déposée dans le dossier associé à ce livre. Formatage du nom de fichier sans les caratcères interdits
         title = re.sub(' ', '_', donnees_propres.get('title'))
         # Filtre sur les caractères ne devant pas participer au nom du fichier image
-        chars = ["'", "?", "#", "~", ":", "%", "&", "*", "$", "\*", "/", "()",  ")", "=", "\"", ","]
+        chars = ["'", "?", "#", "~", ":", "%", "&", "*", "$", "*", "/", "()", ")", "=", "\"", ","]
         format_title = title.translate(str.maketrans('', '', ''.join(chars)))
         image_url = donnees_propres.get('image_url')
         sub_nom_fichier_image = re.split('/+', image_url)[-1]
@@ -373,4 +374,3 @@ for category in liste_category:
     os.chdir('..')
 
 # Fin des actions
- 
