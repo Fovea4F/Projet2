@@ -7,3 +7,17 @@ Chaque dossier par thème inclut :
   -  un fichier .csv comportant les principales caractéristiques de chaque livre.
   -  Un dossier images par thème stockant la couverture de chaque livre.
 
+Déploiement de ce projet.
+
+Dans un environnement Python 3.11.3 virtuel,
+
+	Décompresser le fichier .zip
+	Et lancer depuis la console bash :
+	pip install -r requirements.txt
+	
+	Les modiles liés aux dépendance sont maintenant installés.
+	
+	Lancer le script du projet par la commande :
+	
+	python.exe books_to_scrape.py
+	
