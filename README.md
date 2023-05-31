@@ -12,7 +12,7 @@ Chaque dossier par thème inclut :
 
 Dans un environnement Python 3.11.3 virtuel et actif 
 
-  -  Décompresser le fichier **.zip**  et lancer depuis la console bash :
+  -  Décompresser le fichier **.zip** à la racine du dossier et lancer depuis la console bash :
 	**pip install -r requirements.txt**
 	
   -  Les modules liés aux dépendances sont alors installés.<br>
