@@ -1,8 +1,4 @@
-""" Programme d'extraction des informations de la Bibliothèque "Books_To_Scrape"
-    Il est organisé en mode ETL.
-    entrée : (Url) du site ciblé ar les extractions de donnéeset images
-    Résultat : Arborescence de dossiers regroupant les fichiers .cvs horodatés ainsi que les images des livres concernés
-"""
+
 
 import re
 import requests
@@ -10,6 +6,12 @@ import os
 
 from time import strftime
 
+""" 
+    Phase EXTRACT du processus ETL
+    
+    Programme d'extraction des informations de la Bibliothèque "Books_To_Scrape"
+    Il est organisé en mode ETL.
+"""
 
 def extraction_liste_url_category(url):
 
@@ -41,10 +43,10 @@ def extraction_liste_url_category(url):
 
 def url_book_par_category(url_category):
 
-    """ Cette fonction définit une liste d'Urls
-        pointant sur des description de livres de la même catégorie, dont on souhaite extraire les données.
+    """ Cette fonction definit une liste d'Urls
+        pointant sur des description de livres de la même categorie, dont on souhaite extraire les donnees.
 
-        En entrée : url_category : variable indiquant l'url de la catégorie
+        En entree : url_category : variable indiquant l'url de la categorie
     """
     import requests
     from bs4 import BeautifulSoup
@@ -80,7 +82,7 @@ def url_book_par_category(url_category):
                 # url_book = "https://books.toscrape.com/catalogue/" + url_book
                 liste_livre_category.append(url_book)
 
-        # Vérification de page suivante et création du lien vers cette page
+        # Vérification de page suivante et creation du lien vers cette page
 
         selection_html_suivante = soup.select('#default > div > div > div > div > section > div:nth-child(2) > div > ul > li.next')
         if selection_html_suivante:
@@ -182,7 +184,7 @@ def extraction_donnees_du_livre(url):
 def transformation_donnees_brutes(donnees_in):
 
     """
-        Partie Transformation de (ETL) :
+        Phase TRANSFORM du processus ETL :
         Nettoyage des données récupéres afin de rendre leur format utilisable
         Entree : dictionnaire de données brutes issu de la fonction "extraction_donnees_du_livre(url)"
         Sortie : dictionnaire de données "donnees_purgees"
@@ -289,7 +291,7 @@ def racine_arborescence(nom_projet):
 """
     Programme principal
 
-    Récupération de la liste des catégories
+   Phase LOAD du process ETL
 """
 
 liste_category = []
