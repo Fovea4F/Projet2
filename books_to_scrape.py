@@ -308,16 +308,21 @@ os.chdir(nom_projet)
 liste_category = extraction_liste_url_category('https://books.toscrape.com')
 print("----------------------------------------")
 print(f"{len(liste_category)} categories recensees sur le site.")
+print("Traitement catégorie|indice catégorie|index livre")
 print("----------------------------------------")
 
 for category in liste_category:
     entetes = ''
-    nom_categorie = str(category.split('/')[-2])
-    print(f"Nom de la catégorie traitée : {nom_categorie} , {int(category.split('/')[-2][-1])-1} sur {len(liste_category)}")
-
+    nom_categ = str(category.split('/')[-2])
+    nom_categorie = nom_categ[:(len(nom_categ)-2)]
+    index = 0
     url_livres_par_category = extraction_url_book_par_category(category)
     for url1 in url_livres_par_category:
-        # Extraction des données par livre
+        nom_categ = str(category.split('/')[-2])
+        nom_categorie = nom_categ[:(len(nom_categ)-2)]
+        print(f"       {nom_categorie} | {int(category.split('/')[-2][-1])-1} sur {len(liste_category)} | {index+1}")
+        index +=1
+# Extraction des données par livre
         donnees_brutes = extraction_donnees_du_livre(url1)
         # Transformation des données brutes par livre
         donnees_propres = transformation_donnees_brutes(donnees_brutes)
