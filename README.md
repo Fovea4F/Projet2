@@ -11,13 +11,9 @@ Chaque dossier par thème inclut :
 
 Dans un environnement Python 3.11.3 virtuel,
 
-	Décompresser le fichier **.zip**
-	Et lancer depuis la console bash :
-	pip install -r requirements.txt
+  -  Décompresser le fichier **.zip**  etlancer depuis la console bash :
+	**pip install -r requirements.txt**
 	
-	Les modiles liés aux dépendance sont maintenant installés.
-	
-	Lancer le script du projet par la commande :
-	
-	python.exe books_to_scrape.py
+  -  Les modules liés aux dépendances sont alors installés.<br>
+     Depuis la console bash dans l'environnement virtuel activé, lancer le script du projet par la commande :<br> **_python.exe books_to_scrape.py_**
 	
