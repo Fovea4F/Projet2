@@ -55,6 +55,7 @@ def url_book_par_category(url_category):
     page_html = ''
     soup = ''
     selection_html_courante = ''
+    selection_html_suivante = ''
 
     # url_category = 'https://books.toscrape.com/catalogue/category/books/fiction_10/index.html'
 
@@ -62,7 +63,6 @@ def url_book_par_category(url_category):
         page_html = requests.get(url_category, timeout=TIMEOUT_REQUEST)
         soup = BeautifulSoup(page_html.content, 'html.parser')
         selection_html_courante = soup.select('#default > div > div > div > div > section > div:nth-child(2) > ol > li > article.product_pod > h3')
-        # selection_html_courante = soup.find_all('default > div > div > div > div > section > div:nth-child(2) > ol > li:nth-child(2) > article')
         selection_html_suivante = soup.select('#default > div > div > div > div > section > div:nth-child(2) > div > ul > li.next')
         if selection_html_suivante:
             url_tmp = url_category
@@ -76,7 +76,8 @@ def url_book_par_category(url_category):
             for element in selection_html_courante:
                 url_book = element.find('a').get('href')
                 url_book = url_book.replace('../', '')
-                url_book = "https://books.toscrape.com/catalogue/" + url_book
+                url_book = f"https://books.toscrape.com/catalogue/{url_book}"
+                # url_book = "https://books.toscrape.com/catalogue/" + url_book
                 liste_livre_category.append(url_book)
 
         # Vérification de page suivante et création du lien vers cette page
@@ -137,20 +138,9 @@ def extraction_donnees_du_livre(url):
             valeur = element.find('td').get_text()
             liste[attribut] = valeur
 
-    """# Extraction de la description du livre
-    valeur = []
-    try:
-        selection_html = soup.select('#content_inner > article > p')
-        for element in selection_html:
-            description = element.get_text('p')
-            product_description = description
-    except UnboundLocalError:
-        product_description = ['Pas de donnees']
-    """
     # Extraction de la description du livre
-
     selection_html = soup.select('#content_inner > article > p')
-    if selection_html == []:
+    if not selection_html:
         product_description = 'nc'
     else:
         for element in selection_html:
