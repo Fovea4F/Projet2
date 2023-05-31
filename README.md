@@ -10,7 +10,7 @@ Chaque dossier par thème inclut :
 
 # Déploiement du projet.
 
-Dans un environnement Python 3.11.3 virtuel,
+Dans un environnement Python 3.11.3 virtuel et actif 
 
   -  Décompresser le fichier **.zip**  et lancer depuis la console bash :
 	**pip install -r requirements.txt**
