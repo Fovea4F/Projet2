@@ -1,3 +1,6 @@
+# Utilisez les bases de Python pour l'analyse de marché
+# Fonctionnement du Web Scraping
+# Compréhension des ETL
 
 
 import requests
@@ -65,7 +68,6 @@ def extraction_url_book_par_category(url_category):
     selection_html_courante = ''
     selection_html_suivante = ''
 
-    # url_category = 'https://books.toscrape.com/catalogue/category/books/fiction_10/index.html'
 
     while url_category:
         page_html = requests.get(url_category, timeout=TIMEOUT_REQUEST)
@@ -85,7 +87,6 @@ def extraction_url_book_par_category(url_category):
                 url_book = element.find('a').get('href')
                 url_book = url_book.replace('../', '')
                 url_book = f"https://books.toscrape.com/catalogue/{url_book}"
-                # url_book = "https://books.toscrape.com/catalogue/" + url_book
                 liste_livre_category.append(url_book)
 
         # Vérification de page suivante et creation du lien vers cette page
@@ -286,8 +287,6 @@ def racine_arborescence(nom_projet):
 
     os.makedirs(nom_projet, exist_ok=True)
 
-    # return err
-
 # ************** Fin de la definition des fonctions  ****************
 
 
@@ -306,23 +305,25 @@ depot_directory = racine_arborescence(nom_projet)
 os.chdir(nom_projet)
 
 liste_category = extraction_liste_url_category('https://books.toscrape.com')
-print("----------------------------------------")
-print(f"{len(liste_category)} categories recensees sur le site.")
+print("------------------------------------------------------")
+print(f"        {len(liste_category)} categories recensees sur le site.")
+print("------------------------------------------------------")
 print("Traitement catégorie|indice catégorie|index livre")
-print("----------------------------------------")
 
 for category in liste_category:
     entetes = ''
     nom_categ = str(category.split('/')[-2])
-    nom_categorie = nom_categ[:(len(nom_categ)-2)]
+    nom_categorie = nom_categ.split('_')[0]
+    numero_categorie = int(nom_categ.split('_')[-1])-1
     index = 0
+    print("------------------------------------------------------")
+    print(f"              Catégorie traitée n° {numero_categorie}")
+    print("------------------------------------------------------")
     url_livres_par_category = extraction_url_book_par_category(category)
     for url1 in url_livres_par_category:
-        nom_categ = str(category.split('/')[-2])
-        nom_categorie = nom_categ[:(len(nom_categ)-2)]
-        print(f"       {nom_categorie} | {int(category.split('/')[-2][-1])-1} sur {len(liste_category)} | {index+1}")
-        index +=1
-# Extraction des données par livre
+        print(f"        {nom_categorie}   |    {numero_categorie} sur {len(liste_category)} |      {index+1} / {len(url_livres_par_category)}")
+        index += 1
+    # Extraction des données par livre
         donnees_brutes = extraction_donnees_du_livre(url1)
         # Transformation des données brutes par livre
         donnees_propres = transformation_donnees_brutes(donnees_brutes)
