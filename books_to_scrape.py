@@ -324,7 +324,7 @@ for category in liste_category:
         print(f"        {nom_categorie}   |    {numero_categorie} sur {len(liste_category)} |      {index+1} / {len(url_livres_par_category)}")
         index += 1
     # Extraction des données par livre
-        donnees_brutes = extraction_donnees_du_livre(url1)
+        donnees_brutes = extraction_donnees_du_livre(url1)  
         # Transformation des données brutes par livre
         donnees_propres = transformation_donnees_brutes(donnees_brutes)
 
