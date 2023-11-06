@@ -1,6 +1,6 @@
 # Objectifs:
 
-  Ce projet met en œuvre les capacités de l'étudiant à mettre en place une extraction de données depuis Internet. La gestion de type "Extract-Transform-Load" sera donc une finalité
+  Ce projet met en œuvre les capacités de l'étudiant à mettre en place une extraction de données depuis Internet, dit "Web Scraping" La gestion de type "Extract-Transform-Load" sera donc une finalité
   La mise en œuvre de la bibliothèque d'analyse syntaxique HTML BeautifulSoup4 sera également une première approche de la gestion des bibliothèques
 
 __1. Extraction données depuis BooKToScrape__
